@@ -3,327 +3,268 @@
 #include <string.h>
 
 // Fila de pedidos
-//{FIFO}
-typedef struct Pedido
-{
+typedef struct Pedido {
     int id;
     char prato[50];
     int mesa;
     struct Pedido *proximo;
 } Pedido;
 
-// Pilha de lavagem
-//{LIFO}
-typedef struct Prato
-{
+// Pilha de pratos
+typedef struct Prato {
     int id_tipo;
     char cor[20];
     struct Prato *proximo;
 } Prato;
 
 // Lista de insumos
-typedef struct Insumo
-{
+typedef struct Insumo {
     char nome[50];
     int quantidade;
     struct Insumo *proximo;
 } Insumo;
 
-Prato *inicio_fila = NULL;
-Prato *fim_fila = NULL;
-int contador_pedidos = 1;
+// FILA
+Pedido *inicio_fila = NULL;
+Pedido *fim_fila = NULL;
 
-// Adiciona pedidos:
+// PILHA
+Prato *topo = NULL;
+
+// LISTA
+Insumo *inicio_lista = NULL;
+
+// FUNÇÕES DECLARADAS
 void adicionar_pedido();
-
-// Entrega pedidos:
 void entregar_pedido();
-
-// Lista pedidos:
 void listar_pedidos();
-
 
 void adicionar_prato();
 void lavar_prato();
+void listar_pratos();
 
-// MENU gamer
-int main()
+void novo_insumo();
+void remover_insumo();
+void listar_insumos();
+
+// MENU
+int main() 
 {
     int opcao;
-    printf("\n***********************\n");
-    printf("*** RESTAURANTE FPO ***\n");
-    printf("***********************\n");
-    printf("(1) Adicionar Pedido (Fila)\n");
-    printf("(2) Entregar Pedido (Fila)\n");
-    printf("(3) Receber Prato Sujo (Pilha)\n");
-    printf("(4) Lavar Prato (Pilha)\n");
-    printf("(5) Adicionar Insumo à Lista (Lista)\n");
-    printf("(6) Remover Insumo da Lista (Lista)\n");
-    printf("(7) Imprimir Pedidos\n");
-    printf("(8) Ver Pilha de Pratos\n");
-    printf("(9) Imprimir Lista de Ingredientes\n");
-    printf("(0) Sair\n");
-    printf("Escolha: ");
 
-    scanf("%d", &opcao);
-    if (scanf("%d", &opcao) != 1)
-    {
-        printf("Entrada invalida. Saindo...\n");
-    }
-    switch (opcao)
-    {
-    case 1:
-        adicionar_pedido();
-        break;
-    case 2:
-        entregar_pedido();
-        break;
-    case 3:
-        adicionar_prato();
-        break;
-    case 4:
-        lavar_prato();
-        break;
-    case 5:
-        adicionar_insumo();
-        break;
-    case 6:
-        remover_insumo();
-        break;
-    case 7:
-        imprimir_pedidos();
-        break;
-    case 8:
-        imprimir_pilha_pratos();
-        break;
-    case 9:
-        imprimir_insumos();
-        break;
-    case 0:
-        printf("Saindo...\n");
-        break;
-    default:
-        printf("Opcao invalida. Tente novamente.\n");
-    }
+    do {
+        printf("\n***********************\n");
+        printf("*** RESTAURANTE FPO ***\n");
+        printf("***********************\n");
 
-    {
-        Insumo *t = lista_insumos;
-        lista_insumos = lista_insumos->proximo;
-        free(t);
-    }
+        printf("(1) Adicionar Pedido (Fila)\n");
+        printf("(2) Entregar Pedido (Fila)\n");
+        printf("(3) Receber Prato Sujo (Pilha)\n");
+        printf("(4) Lavar Prato (Pilha)\n");
+        printf("(5) Adicionar Insumo (Lista)\n");
+        printf("(6) Remover Insumo (Lista)\n");
+        printf("(7) Imprimir Pedidos\n");
+        printf("(8) Ver Pilha de Pratos\n");
+        printf("(9) Imprimir Lista de Ingredientes\n");
+        printf("(0) Sair\n");
+        printf("Escolha: ");
+
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1: adicionar_pedido(); break;
+            case 2: entregar_pedido(); break;
+            case 3: adicionar_prato(); break;
+            case 4: lavar_prato(); break;
+            case 5: novo_insumo(); break;
+            case 6: remover_insumo(); break;
+            case 7: listar_pedidos(); break;
+            case 8: listar_pratos(); break;
+            case 9: listar_insumos(); break;
+            case 0: printf("Saindo...\n"); break;
+            default: printf("Opcao invalida.\n");
+        }
+
+    } while (opcao != 0);
+
     return 0;
 }
 
-//       FILAS
-// Adiciona pedidos (FIFO)
-void adicionar_pedido()
-{
-    Pedido *novo_pedido = (Pedido *)malloc(sizeof(Pedido));
-    printf("Digite o ID do pedido: ");
-    scanf("%d", &novo_pedido->id);
+/* =================
+        FILA
+====================*/
 
-    printf("Digite nome do prato: ");
-    scanf("%s", &novo_pedido->prato);
+void adicionar_pedido() {
+    Pedido *novo = malloc(sizeof(Pedido));
+
+    printf("Digite o ID do pedido: ");
+    scanf("%d", &novo->id);
+
+    printf("Digite o nome do prato: ");
+    scanf("%s", novo->prato);
 
     printf("Mesa do pedido: ");
-    scanf("%d", &novo_pedido->mesa);
+    scanf("%d", &novo->mesa);
 
-    novo_pedido->proximo = NULL;
-    if (inicio_fila == NULL)
-    {
-        inicio_fila = fim_fila = novo_pedido;
-    }
-    else
-    {
-        fim_fila->proximo = novo_pedido;
-        fim_fila = novo_pedido;
+    novo->proximo = NULL;
+
+    if (inicio_fila == NULL) {
+        inicio_fila = fim_fila = novo;
+    } else {
+        fim_fila->proximo = novo;
+        fim_fila = novo;
     }
 
-    printf("Pedido adicionado com sucesso!\n");
-    printf("ID do pedidos: %d\n", novo_pedido->id);
-    printf("Prato: %s\n", novo_pedido->prato);
-    printf("Mesa: %d\n", novo_pedido->mesa);
-    // NAO ESQUECER DE TIRAR->>>
-    printf("\nObrigado pelo pedido gamer!");
+    printf("Pedido adicionado!\n");
 }
-// Entrega pedidos (FIFO)
-void entregar_pedido()
-{
-    if (inicio_fila == NULL)
-    {
-        printf("Nenhum pedido para entregar.\n");
+
+void entregar_pedido() {
+    if (inicio_fila == NULL) {
+        printf("Nenhum pedido.\n");
         return;
     }
-    Pedido *pedido_entregue = inicio_fila;
+    Pedido *aux = inicio_fila;
     inicio_fila = inicio_fila->proximo;
-    printf("Pedido entregue:\n");
-    printf("ID do pedido: %d\n", pedido_entregue->id);
-    printf("Prato: %s\n", pedido_entregue->prato);
-    printf("Mesa: %d\n", pedido_entregue->mesa);
-    free(pedido_entregue);
+
+    printf("Pedido entregue: %d - %s (Mesa %d)\n",
+           aux->id, aux->prato, aux->mesa);
+
+    free(aux);
 }
-// Lista pedidos (FIFO)
-void listar_pedidos()
-{
-    if (inicio_fila == NULL)
-    {
+
+void listar_pedidos() {
+    Pedido *p = inicio_fila;
+    if (!p) {
         printf("Nenhum pedido na fila.\n");
         return;
     }
 
-    Pedido *atual = inicio_fila;
-    printf("Pedidos na fila:\n");
-    while (atual != NULL)
-    {
-        printf("ID do pedido: %d, Prato: %s, Mesa: %d\n", atual->id, atual->prato, atual->mesa);
-        atual = atual->proximo;
+    while (p) {
+        printf("ID: %d, Prato: %s, Mesa: %d\n",
+               p->id, p->prato, p->mesa);
+        p = p->proximo;
     }
 }
 
-//       PILHAS gamer
-Prato *topo = NULL;
-// adiciona prato:
-void adicionar_prato()
-{
-    Prato *novo_prato = (Prato *)malloc(sizeof(Prato));
-    printf("Digite a cor do prato:\n 1- Branco\n 2- Azul\n 3- Vermelho\n 4- Verde\n");
-    scanf("%s", &novo_prato->cor);
+/* =================
+        PILHA
+====================*/
 
-    // verificação gamer pra saber se o cara digitou um numero valido
-    if (novo_prato->cor == "Branco")
-    {
-        novo_prato->id_tipo = 1;
-    }
-    else if (novo_prato->cor == "Azul")
-    {
-        novo_prato->id_tipo = 2;
-    }
-    else if (novo_prato->cor == "Vermelho")
-    {
-        novo_prato->id_tipo = 3;
-    }
-    else if (novo_prato->cor == "Verde")
-    {
-        novo_prato->id_tipo = 4;
-    }
-    else
-    {
-        printf("Cor invalida!\n");
-        free(novo_prato);
+void adicionar_prato() {
+    Prato *novo = malloc(sizeof(Prato));
+
+    printf("Digite a cor do prato: ");
+    scanf("%s", novo->cor);
+
+    if (strcmp(novo->cor, "Branco") == 0) novo->id_tipo = 1;
+    else if (strcmp(novo->cor, "Azul") == 0) novo->id_tipo = 2;
+    else if (strcmp(novo->cor, "Vermelho") == 0) novo->id_tipo = 3;
+    else if (strcmp(novo->cor, "Verde") == 0) novo->id_tipo = 4;
+    else {
+        printf("Cor inválida.\n");
+        free(novo);
         return;
     }
 
-    novo_prato->proximo = topo;
-    topo = novo_prato;
-    printf("Prato adicionado para lavagem: %s\n", novo_prato->cor);
+    novo->proximo = topo;
+    topo = novo;
+
+    printf("Prato adicionado à pilha.\n");
 }
 
-void lavar_prato()
-{
-    if (topo == NULL)
-    {
-        printf("Nenhum prato para lavar.\n");
+void lavar_prato() {
+    if (topo == NULL) {
+        printf("Nenhum prato.\n");
         return;
     }
-    Prato *prato_lavado = topo;
+
+    Prato *aux = topo;
     topo = topo->proximo;
-    printf("Prato lavado: %s\n", prato_lavado->cor);
-    free(prato_lavado);
+
+    printf("Prato lavado: %s\n", aux->cor);
+    free(aux);
 }
 
-// ver pilha de prato gamer
-void listar_pratos()
-{
-    if (topo == NULL)
-    {
-        printf("Nenhum prato na pilha.\n");
+void listar_pratos() {
+    Prato *p = topo;
+    if (!p) {
+        printf("Pilha vazia.\n");
         return;
     }
 
-    Prato *atual = topo;
-    printf("Pratos na pilha:\n");
-    while (atual != NULL)
-    {
-        printf("Cor do prato: %s\n", atual->cor);
+    while (p) {
+        printf("Cor: %s\n", p->cor);
+        p = p->proximo;
+    }
+}
+
+/* =================
+        LISTA
+====================*/
+
+void novo_insumo() {
+    Insumo *novo = malloc(sizeof(Insumo));
+
+    printf("Nome do insumo: ");
+    scanf("%s", novo->nome);
+
+    printf("Quantidade: ");
+    scanf("%d", &novo->quantidade);
+
+    novo->proximo = inicio_lista;
+    inicio_lista = novo;
+
+    printf("Insumo adicionado.\n");
+}
+
+void remover_insumo() {
+    if (inicio_lista == NULL) {
+        printf("Lista vazia.\n");
+        return;
+    }
+
+    int pos, i = 1;
+    printf("Posição do insumo a remover: ");
+    scanf("%d", &pos);
+
+    Insumo *atual = inicio_lista;
+    Insumo *anterior = NULL;
+
+    while (atual != NULL && i < pos) {
+        anterior = atual;
         atual = atual->proximo;
-    }
-}
-
-// LISTA DE INSUMOS
-Insumo *inicio_lista = NULL;
-Insumo *fim_lista = NULL;
-
-// adiciona insumo
-void novo_insumo()
-{
-    Insumo *novo_insumo = (Insumo *)malloc(sizeof(Insumo));
-    printf("Digite o nome do insumo: ");
-    scanf("%s", &novo_insumo->nome);
-    printf("Digite a quantidade do insumo: ");
-    scanf("%d", &novo_insumo->quantidade);
-    novo_insumo->proximo = inicio_lista;
-    inicio_lista = novo_insumo;
-
-    printf("Insumo adicionado: %s, Quantidade: %d\n", novo_insumo->nome, novo_insumo->quantidade);
-}
-
-// remover insumo
-void remover_insumo()
-{
-    if (inicio_lista == NULL)
-    {
-        printf("Nenhum insumo para remover.\n");
-        return;
-    }
-    int posicao, i = 1;
-
-    printf("Digite a posicao do insumo a ser removido: ");
-    scanf("%d", &posicao);
-
-    Insumo *insumo_atual = inicio_lista;
-    Insumo *insumo_anterior = NULL;
-    while (insumo_atual != NULL && i < posicao)
-    {
-        insumo_anterior = insumo_atual;
-        insumo_atual = insumo_atual->proximo;
         i++;
     }
 
-    if (insumo_atual == NULL)
-    {
-        printf("Posicao invalida.\n");
+    if (atual == NULL) {
+        printf("Posição inválida.\n");
         return;
     }
-    if (insumo_anterior == NULL)
-    {
-        inicio_lista = insumo_atual->proximo;
-    }
-    else
-    {
-        insumo_anterior->proximo = insumo_atual->proximo;
+
+    if (anterior == NULL) {
+        inicio_lista = atual->proximo;
+    } else {
+        anterior->proximo = atual->proximo;
     }
 
-    printf("Insumo removido: %s\n", insumo_atual->nome);
-    free(insumo_atual);
+    printf("Removido: %s\n", atual->nome);
+    free(atual);
 }
 
-// listar insumos
-Insumo *lista_insumos = NULL;
-void listar_insumos()
-{
-    if (inicio_lista == NULL)
-    {
-        printf("Nenhum insumo na lista.\n");
+void listar_insumos() {
+    if (inicio_lista == NULL) {
+        printf("Nenhum insumo.\n");
         return;
     }
 
     Insumo *atual = inicio_lista;
     int i = 1;
-    printf("Insumos na lista:\n");
-    while (atual != NULL)
-    {
-        printf("%d. Nome: %s, Quantidade: %d\n", i, atual->nome, atual->quantidade);
+
+    while (atual) {
+        printf("%d. Nome: %s, Quantidade: %d\n",
+               i, atual->nome, atual->quantidade);
         atual = atual->proximo;
         i++;
     }
 }
+
