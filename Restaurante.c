@@ -101,7 +101,7 @@ void adicionar_pedido() {
     scanf("%d", &novo->id);
 
     printf("Digite o nome do prato: ");
-    scanf("%s", novo->prato);
+    scanf("%s", &novo->prato);
 
     printf("Mesa do pedido: ");
     scanf("%d", &novo->mesa);
